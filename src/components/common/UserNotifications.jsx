@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Bell } from "lucide-react";
 
-const UserNotifications = ({ userId, role }) => {
+const UserNotifications = () => {
+    const userId = localStorage.getItem("userId");
+    const role = localStorage.getItem("role");
+    
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
    
@@ -10,7 +14,7 @@ const UserNotifications = ({ userId, role }) => {
         const fetchNotifications = async () => {
             try {
                 const res = await axios.get(
-                    `http://localhost:4000/api/notifications/${userId}/${role}`
+                    `http://localhost:4000/api/notification/${userId}/${role}`
                 );
                 
                 setNotifications(res.data);
@@ -34,8 +38,8 @@ const UserNotifications = ({ userId, role }) => {
 
     return (
         <div className="max-w-md mx-auto p-4 bg-white shadow-md rounded-lg">
-            <h2 className="text-lg font-semibold mb-3 text-center text-blue-600">
-                🔔 Recent Notifications
+            <h2 className="text-lg font-semibold mb-3 flex items-center justify-center text-blue-600">
+                <Bell className="inline mr-2" size={20} /> Recent Notifications
             </h2>
             <ul className="space-y-3">
                 {notifications.map((n) => (

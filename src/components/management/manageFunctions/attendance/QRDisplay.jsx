@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Play, Hourglass, Square } from "lucide-react";
 
 const QRDisplay = ({ onBack }) => {
     const [qrCode, setQrCode] = useState("");
@@ -58,21 +59,21 @@ const QRDisplay = ({ onBack }) => {
             {!isRunning ? (
                 <button
                     onClick={startQR}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center justify-center"
                 >
-                    ▶️ Start QR Generation
+                    <Play className="mr-2" size={20} /> Start QR Generation
                 </button>
             ) : (
                 <>
                     <img src={qrCode} alt="QR Code" width={300} />
-                    <h3 className="text-xl text-gray-700">
-                        ⏳ Refreshing in {timer}s
+                    <h3 className="text-xl text-gray-700 flex items-center justify-center">
+                        <Hourglass className="mr-2" size={24} /> Refreshing in {timer}s
                     </h3>
                     <button
                         onClick={stopQR}
-                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center justify-center"
                     >
-                        ⏹ Stop & Go Back
+                        <Square className="mr-2" size={20} /> Stop & Go Back
                     </button>
                 </>
             )}

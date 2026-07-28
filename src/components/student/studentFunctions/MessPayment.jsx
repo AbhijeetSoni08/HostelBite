@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import { useLocation } from "react-router-dom";
 
 
 
@@ -10,16 +10,18 @@ const MessPayment = () => {
     const [paymentProcessing, setPaymentProcessing] = useState(false);
     const token = localStorage.getItem("token");
 
+    const location = useLocation();
     
-    const amount = 2;
+    const amount = location.state?.amount || 2;
+    const invoice_id = location.state?.invoice_id || null;
 
     useEffect(() => {
         const fetchStudentDetails = async () => {
            
-            const decoded = jwtDecode(token);
-            const id = decoded.id;
-           
             try {
+                const id = localStorage.getItem("userId");
+                if (!id) throw new Error("User ID not found in localStorage");
+               
                 // Fetch student details using token
                 const res = await axios.get(`http://localhost:4000/api/students/${id}`, {
                     headers: {
@@ -88,6 +90,7 @@ const MessPayment = () => {
                             email: student.email,
                             name: student.name,
                             amount,
+                            invoice_id
                         });
                         alert("✅ Payment successful! Confirmation email sent.");
                     } catch (error) {

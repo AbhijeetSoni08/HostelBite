@@ -1,6 +1,6 @@
 const db = require("../../config/Database");  // MySQL connection
 
-// ✅ Get all students
+//  Get all students
 exports.getAllStudents = (req, res) => {
     const sql = "SELECT student_id, name, email, course, year, room_number FROM STUDENT";
     db.query(sql, (err, results) => {
@@ -9,7 +9,7 @@ exports.getAllStudents = (req, res) => {
     });
 };
 
-// ✅ Get student by ID
+//  Get student by ID
 exports.getStudentById = (req, res) => {
     const {id } = req.params;
     student_id = id;
@@ -21,7 +21,7 @@ exports.getStudentById = (req, res) => {
     });
 };
 
-// ✅ Update student profile
+//  Update student profile
 exports.updateStudent = (req, res) => {
     const { id } = req.params;
     const { name, email, room_number } = req.body;
@@ -34,7 +34,7 @@ exports.updateStudent = (req, res) => {
     });
 };
 
-// ✅ Delete student
+//  Delete student
 exports.deleteStudent = (req, res) => {
     const { student_id } = req.params;
 

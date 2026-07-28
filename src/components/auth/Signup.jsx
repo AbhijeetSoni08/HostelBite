@@ -65,12 +65,23 @@ const SignupForm = () => {
         try {
             const response = await axios.post(
                 "http://localhost:4000/api/auth/signup",
-                formData
+                formData,
+                { withCredentials: true }
             );
 
-            console.log("✅ Signup successful:", response.data);
-            alert("Signup successful! You can now log in.");
-            navigate("/login");
+            console.log(" User added successfully:", response.data);
+            alert("User added successfully!");
+            setFormData({
+                name: "",
+                email: "",
+                password: "",
+                confirmPassword: "",
+                role: "",
+                room_number: "",
+                staffRole: "",
+                course: "",
+                year: "",
+            });
         } catch (error) {
             console.error("Signup error:", error.response?.data || error.message);
             alert(error.response?.data?.message || "Signup failed!");
@@ -88,7 +99,7 @@ const SignupForm = () => {
                 className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md space-y-5"
             >
                 <h2 className="text-2xl font-semibold text-center text-gray-800">
-                    Signup Form
+                    Add New User
                 </h2>
 
                 {/* Name */}
@@ -265,7 +276,7 @@ const SignupForm = () => {
                     type="submit"
                     className="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-300"
                 >
-                    Sign Up
+                    Add User
                 </button>
             </form>
         </div>

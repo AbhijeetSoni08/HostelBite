@@ -108,17 +108,6 @@ const About =()=> {
                 </h3>
 
                 <div className="flex flex-col md:flex-row justify-center items-center gap-5 max-w-7xl mx-auto">
-                    {/* Nizamuddin */}
-                    <div className="text-center">
-                        <img
-                            src={nizam}
-                            alt="Team member"
-                            className="w-40 h-40 object-cover rounded-full mx-auto mb-4 shadow-lg"
-                        />
-                        <h4 className="font-semibold text-lg text-gray-800">Nizamuddin</h4>
-                        <p className="text-sm text-gray-600">Project Lead & Full-Stack Developer</p>
-                    </div>
-
                     {/* Abhijeet Soni */}
 
                     <div className="text-center">
@@ -128,8 +117,20 @@ const About =()=> {
                             className="w-40 h-40 object-cover rounded-full mx-auto mb-4 shadow-lg"
                         />
                         <h4 className="font-semibold text-lg text-gray-800">Abhijeet Soni</h4>
+                        <p className="text-sm text-gray-600">Project Lead & Full-Stack Developer</p>
+                    </div>
+
+                    {/* Nizamuddin */}
+                    <div className="text-center">
+                        <img
+                            src={nizam}
+                            alt="Team member"
+                            className="w-40 h-40 object-cover rounded-full mx-auto mb-4 shadow-lg"
+                        />
+                        <h4 className="font-semibold text-lg text-gray-800">Nizamuddin</h4>
                         <p className="text-sm text-gray-600">Database Designer & Frontend Developer</p>
                     </div>
+
 
                     {/* Amarjeet Kumar */}
 

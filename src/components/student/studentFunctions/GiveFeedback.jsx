@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 
 const GiveFeedback = () => {
     
@@ -8,9 +7,7 @@ const GiveFeedback = () => {
     const [rating, setRating] = useState(0);
     const [status, setStatus] = useState("");
 
-    const token = localStorage.getItem("token");
-    const decoded = jwtDecode(token);
-    const studentId = decoded.id;
+    const student_id = localStorage.getItem("userId");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -22,7 +19,7 @@ const GiveFeedback = () => {
 
         try {
             const res = await axios.post("http://localhost:4000/api/feedbacks/", {
-                student_id: studentId,
+                student_id: student_id,
                 message,
                 rating,
             });

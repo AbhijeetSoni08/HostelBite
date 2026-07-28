@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import axios from "axios";
-import {jwtDecode} from "jwt-decode";
 
 const ViewComplaints = () => {
     const [complaints, setComplaints] = useState([]);
@@ -12,11 +11,7 @@ const ViewComplaints = () => {
         setMessage("");
 
         try {
-            const token = localStorage.getItem("token");
-
-            // Decode token to know user id and role (optional)
-            const decoded = jwtDecode(token);
-            const student_id = decoded.id;
+            const student_id = localStorage.getItem("userId");
 
             // Send request with token in Authorization header
             const res = await axios.get(`http://localhost:4000/api/complaints/complaint/${student_id}`, {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FileText } from "lucide-react";
 
 const AttendanceSetup = ({ onSave }) => {
     const [details, setDetails] = useState({
@@ -7,7 +8,7 @@ const AttendanceSetup = ({ onSave }) => {
         meal_type: "",
     });
 
-    //  Load saved data (if exists) when component mounts
+    // Load saved data (if exists) when component mounts
     useEffect(() => {
         const savedDetails = localStorage.getItem("studentDetails");
         if (savedDetails) {
@@ -15,12 +16,12 @@ const AttendanceSetup = ({ onSave }) => {
         }
     }, []);
 
-    // 📦 Handle input changes
+    // Handle input changes
     const handleChange = (e) => {
         setDetails({ ...details, [e.target.name]: e.target.value });
     };
 
-    // 💾 Save details to localStorage
+    // Save details to localStorage
     const handleSubmit = (e) => {
         e.preventDefault();
         localStorage.setItem("studentDetails", JSON.stringify(details));
@@ -30,7 +31,9 @@ const AttendanceSetup = ({ onSave }) => {
 
     return (
         <div style={{ textAlign: "center", marginTop: "50px" }}>
-            <h2>🧾 Mess Attendance Setup</h2>
+            <h2 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <FileText size={24} style={{ marginRight: '8px' }} /> Mess Attendance Setup
+            </h2>
             <form onSubmit={handleSubmit}>
                 <input
                     type="text"

@@ -1,14 +1,18 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Navbar = () => {
     const navigate = useNavigate();
-    const token = localStorage.getItem("token");
     const role = localStorage.getItem("role");
 
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("role");
+    const handleLogout = async () => {
+        try {
+            await axios.post("http://localhost:4000/api/auth/logout");
+        } catch (err) {
+            console.error("Logout failed", err);
+        }
+        localStorage.clear();
         navigate("/login");
     };
 
@@ -27,9 +31,8 @@ const Navbar = () => {
 
             {/* Right: Auth Buttons */}
             <div className="space-x-4">
-                {!token ? (
+                {!role ? (
                     <>
-                        <Link to="/signup">Signup</Link>
                         <Link to="/login">Login</Link>
                     </>
                 ) : (

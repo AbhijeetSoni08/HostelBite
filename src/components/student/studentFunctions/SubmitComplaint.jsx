@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import axios from "axios";
-import {jwtDecode} from "jwt-decode"; 
 const SubmitComplaint = () => {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -8,9 +7,7 @@ const SubmitComplaint = () => {
     const [message, setMessage] = useState("");
 
     
-    const token = localStorage.getItem("token"); // assuming token is user_id for simplicity
-    const decoded = jwtDecode(token);
-    const student_id = decoded.id;
+    const student_id = localStorage.getItem("userId");
 
     const handleSubmit = async (e) => {
         e.preventDefault();

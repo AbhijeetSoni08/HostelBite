@@ -25,7 +25,7 @@ exports.getAllSalaries = (req, res) => {
         SELECT s.id, s.amount, s.month, s.status, s.created_at, 
                st.name AS staff_name, st.role 
         FROM salaries s 
-        JOIN staff st ON s.staff_id = st.id
+        JOIN staff st ON s.staff_id = st.staff_id
         ORDER BY s.created_at DESC
     `;
     db.query(sql, (err, results) => {

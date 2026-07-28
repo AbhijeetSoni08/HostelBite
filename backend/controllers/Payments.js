@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const { instance } = require("../config/razorpay");
 const nodemailer = require("nodemailer");
+const db = require("../config/Database");
 
 exports.createOrder = async (req, res) => {
     try {
@@ -26,7 +27,7 @@ exports.createOrder = async (req, res) => {
 
 exports.verifyPayment = async (req, res) => {
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, email, name, amount } = req.body;
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, email, name, amount, invoice_id } = req.body;
 
         const body = razorpay_order_id + "|" + razorpay_payment_id;
 
@@ -41,7 +42,19 @@ exports.verifyPayment = async (req, res) => {
 
         if (expectedSignature === razorpay_signature) {
             // ✅ Signature verified -> Send verification email
-            await sendVerificationEmail(email, name, amount, razorpay_payment_id);
+            try {
+                await sendVerificationEmail(email, name, amount, razorpay_payment_id);
+            } catch (emailError) {
+                console.error("Email sending failed:", emailError);
+            }
+
+            if (invoice_id) {
+                const paid_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                db.query("UPDATE invoice SET status = 'Paid', paid_at = ? WHERE invoice_id = ?", [paid_at, invoice_id], (err) => {
+                    if (err) console.error("Error updating invoice status after payment:", err);
+                });
+            }
+
             res.status(200).json({ success: true, message: "Payment verified successfully" });
         } else {
             res.status(400).json({ success: false, message: "Payment verification failed" });

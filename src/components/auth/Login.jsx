@@ -45,8 +45,10 @@ const LoginForm = () => {
 
 
             console.log("✅ Login response:", response.data);
-            localStorage.setItem("token", response.data.token);
             localStorage.setItem("role", response.data.role);
+            if (response.data.user && response.data.user.id) {
+                localStorage.setItem("userId", response.data.user.id);
+            }
             alert("Login successful!");
             
 

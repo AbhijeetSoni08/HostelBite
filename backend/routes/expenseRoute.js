@@ -11,7 +11,7 @@ const {
 const router = express.Router();
 
 // Add new expense
-router.post("/", createExpense);
+router.post("/",createExpense);
 
 // Get all expenses
 router.get("/viewAllExpenses", getAllExpenses);

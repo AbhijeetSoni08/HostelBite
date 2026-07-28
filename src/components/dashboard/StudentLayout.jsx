@@ -4,11 +4,8 @@ import Sidebar from "../common/Sidebar";
 
 const StudentLayout = () => {
     return (
-        <div className="flex min-h-screen bg-gray-100">
-            <Sidebar role="student" />
-            <div className="flex-1 p-6">
-                <Outlet /> {/* Here the right-side page will render */}
-            </div>
+        <div className="min-h-screen bg-gray-100">
+            <Outlet /> {/* Here the right-side page will render */}
         </div>
     );
 };

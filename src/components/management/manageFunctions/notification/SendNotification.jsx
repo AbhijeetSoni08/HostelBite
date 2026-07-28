@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Megaphone } from "lucide-react";
 
 const SendNotification = () => {
     const [students, setStudents] = useState([]);
@@ -49,8 +50,8 @@ const SendNotification = () => {
     return (
         <div className="p-6 bg-gray-100 min-h-screen">
             <div className="max-w-lg mx-auto bg-white p-6 rounded-2xl shadow-md">
-                <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
-                    📢 Send Notification
+                <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800 flex items-center justify-center">
+                    <Megaphone className="mr-2" size={28} /> Send Notification
                 </h2>
 
                 {/* Select Target Type */}

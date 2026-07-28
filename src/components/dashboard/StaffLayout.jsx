@@ -2,15 +2,12 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../common/Sidebar";
 
-const StudentLayout = () => {
+const StaffLayout = () => {
     return (
-        <div className="flex min-h-screen bg-gray-100">
-            <Sidebar role="staff" />
-            <div className="flex-1 p-6">
-                <Outlet /> {/* Here the right-side page will render */}
-            </div>
+        <div className="min-h-screen bg-gray-100">
+            <Outlet /> {/* Here the right-side page will render */}
         </div>
     );
 };
 
-export default StudentLayout;
+export default StaffLayout;

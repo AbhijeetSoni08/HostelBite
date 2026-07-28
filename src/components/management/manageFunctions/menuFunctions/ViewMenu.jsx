@@ -33,7 +33,7 @@ const ViewMenu = () => {
         const dayMeals = menuData.filter((m) => m.day === day);
         const menuRow = { day };
         mealTypes.forEach((meal) => {
-            const mealData = dayMeals.find((m) => m.meal_type === meal);
+            const mealData = dayMeals.find((m) => m.meal_type.toLowerCase() === meal.toLowerCase());
             menuRow[meal] = mealData ? mealData.items : "-";
         });
         return menuRow;

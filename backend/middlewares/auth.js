@@ -14,7 +14,7 @@ exports.auth = (req, res, next) => {
         // we need to body-parser to Fetch token From body
 
 
-        const token = req.cookies.token || req.body.token || req.header("Authorization").replace("bearer ", "");
+        const token = (req.cookies && req.cookies.token) || req.body.token || (req.header("Authorization") ? req.header("Authorization").replace(/bearer /i, "") : null);
         if (!token) {
             return res.status(401).json({
                 success: false,
@@ -55,8 +55,8 @@ exports.auth = (req, res, next) => {
 
 exports.isStudent = (req, res, next) => {
     try {
-        if (req.user.role !== "Student") {
-            res.status(401).json({
+        if (req.user.role.toLowerCase() !== "student") {
+            return res.status(401).json({
                 success: false,
                 message: "This route is protected for students"
             })
@@ -79,8 +79,8 @@ exports.isStudent = (req, res, next) => {
 
 exports.isAdmin = (req, res, next) => {
     try {
-        if (req.user.role !== "Admin") {
-            res.status(401).json({
+        if (req.user.role.toLowerCase() !== "admin") {
+            return res.status(401).json({
                 success: false,
                 message: "This route is protected for Admin"
             })

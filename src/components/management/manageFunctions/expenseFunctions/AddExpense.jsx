@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-
 const AddExpense = () => {
     const [formData, setFormData] = useState({
         title: "",
@@ -37,14 +35,12 @@ const AddExpense = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const token = localStorage.getItem("token");
-        const decoded = jwtDecode(token);
-        const management_id = decoded.id;
+        const management_id = localStorage.getItem("userId");
 
         // Check if all required fields are filled
         const { title, category, date, qty, rate_kg } = formData;
         if (!title || !category || !date || !qty || !rate_kg) {
-            setMessage("⚠️ Please fill in all required fields.");
+            setMessage(" Please fill in all required fields.");
             return;
         }
 
@@ -56,7 +52,7 @@ const AddExpense = () => {
             //     category,
             // });
             // if (checkRes.data.exists) {
-            //     setMessage("❌ This expense already exists!");
+            //     setMessage("This expense already exists!");
             //     return;
             // }
 
