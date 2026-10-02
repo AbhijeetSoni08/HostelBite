@@ -17,7 +17,7 @@ const MarkAttendance = () => {
 
         // Call backend to verify and mark attendance
         axios
-            .get(`http://localhost:4000/api/attendance/verify?token=${token}`)
+            .get(`/api/attendance/verify?token=${token}`)
             .then((res) => {
                 setMessage(res.data.message || "Attendance marked successfully!");
             })

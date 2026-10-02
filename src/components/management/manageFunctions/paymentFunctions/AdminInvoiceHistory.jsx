@@ -1,20 +1,29 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { CheckCircle, Clock, Trash2, Edit2 } from "lucide-react";
+import { CheckCircle, Clock, Trash2, FileText, ArrowLeft, RotateCcw, Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { TableSkeleton } from "../../../common/Skeleton";
+import { ErrorState, EmptyState } from "../../../common/StateDisplays";
+import { useToast } from "../../../common/ToastContext";
 
 const AdminInvoiceHistory = () => {
+    const navigate = useNavigate();
+    const { addToast } = useToast();
     const [invoices, setInvoices] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [error, setError] = useState(false);
 
     const fetchInvoices = async () => {
         setLoading(true);
+        setError(false);
         try {
-            const res = await axios.get("http://localhost:4000/api/invoices/");
+            const res = await axios.get("/api/invoices/", {
+                withCredentials: true
+            });
             setInvoices(res.data);
         } catch (err) {
             console.error(err);
-            setError("Failed to fetch invoice history.");
+            setError(true);
         } finally {
             setLoading(false);
         }
@@ -25,96 +34,143 @@ const AdminInvoiceHistory = () => {
     }, []);
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this invoice?")) return;
+        if (!window.confirm("Are you sure you want to permanently delete this invoice?")) return;
         try {
-            await axios.delete(`http://localhost:4000/api/invoices/${id}`);
+            await axios.delete(`/api/invoices/${id}`, { withCredentials: true });
             setInvoices(invoices.filter((inv) => inv.invoice_id !== id));
+            addToast("Invoice deleted", "success");
         } catch (err) {
-            alert("Error deleting invoice.");
+            addToast("Error deleting invoice", "error");
         }
     };
 
     const handleUpdateStatus = async (id, currentStatus) => {
         const newStatus = currentStatus.toLowerCase() === "paid" ? "Unpaid" : "Paid";
         try {
-            await axios.put(`http://localhost:4000/api/invoices/${id}/status`, { status: newStatus });
-            fetchInvoices(); // Refetch to get updated timestamp
+            await axios.put(`/api/invoices/${id}/status`, { status: newStatus }, { withCredentials: true });
+            addToast(`Invoice marked as ${newStatus}`, "success");
+            fetchInvoices(); 
         } catch (err) {
-            alert("Error updating status.");
+            addToast("Failed to update status", "error");
         }
     };
 
-    if (loading && invoices.length === 0) return <p className="text-center mt-10">Loading invoices...</p>;
-    if (error) return <p className="text-center mt-10 text-red-500">{error}</p>;
-
     return (
-        <div className="max-w-6xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-2xl">
-            <h2 className="text-2xl font-semibold mb-6 text-center text-gray-800">All Student Invoices</h2>
+        <div className="max-w-7xl mx-auto pb-12 w-full animate-fade-in">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={() => navigate("/admin-dashboard/payments-section")} 
+                        className="p-2 -ml-2 rounded-lg text-gray-500 hover:text-dark hover:bg-gray-100 transition-colors"
+                    >
+                        <ArrowLeft size={20} />
+                    </button>
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-dark flex items-center gap-2">
+                            <FileText className="text-emerald-500" size={28} /> Billing History
+                        </h1>
+                        <p className="text-gray-500 mt-1">Manage student fee invoices and payment status.</p>
+                    </div>
+                </div>
+                
+                <button 
+                    onClick={() => navigate("/generate-invoice")}
+                    className="btn btn-primary px-4 py-2"
+                >
+                    <Plus size={18} className="mr-2" /> Generate Invoice
+                </button>
+            </div>
 
-            {invoices.length === 0 ? (
-                <p className="text-center text-gray-500">No invoices found.</p>
+            {loading ? (
+                <TableSkeleton rows={8} />
+            ) : error ? (
+                <ErrorState 
+                    title="Failed to load invoices" 
+                    description="There was a problem communicating with our billing servers." 
+                    onRetry={fetchInvoices} 
+                />
+            ) : invoices.length === 0 ? (
+                <EmptyState 
+                    icon={FileText}
+                    title="No invoices found"
+                    description="You haven't generated any fee invoices yet."
+                    actionLabel="Generate First Invoice"
+                    onAction={() => navigate("/generate-invoice")}
+                />
             ) : (
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-gray-100 text-gray-700">
-                                <th className="p-3 border-b">ID</th>
-                                <th className="p-3 border-b">Student</th>
-                                <th className="p-3 border-b">Issue Date</th>
-                                <th className="p-3 border-b">Due Date</th>
-                                <th className="p-3 border-b">Amount</th>
-                                <th className="p-3 border-b">Status</th>
-                                <th className="p-3 border-b">Paid At</th>
-                                <th className="p-3 border-b">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {invoices.map((inv) => (
-                                <tr key={inv.invoice_id} className="hover:bg-gray-50 transition">
-                                    <td className="p-3 border-b">#{inv.invoice_id}</td>
-                                    <td className="p-3 border-b font-medium text-indigo-700">
-                                        {inv.student_name}
-                                        <div className="text-xs text-gray-500 font-normal">{inv.student_email}</div>
-                                    </td>
-                                    <td className="p-3 border-b">{new Date(inv.issue_date).toLocaleDateString()}</td>
-                                    <td className="p-3 border-b">{new Date(inv.due_date).toLocaleDateString()}</td>
-                                    <td className="p-3 border-b font-medium text-gray-900">₹{inv.amount}</td>
-                                    <td className="p-3 border-b">
-                                        {inv.status.toLowerCase() === "paid" ? (
-                                            <span className="inline-flex items-center text-green-700 bg-green-100 px-2 py-1 rounded-full text-xs font-semibold">
-                                                <CheckCircle size={14} className="mr-1" /> Paid
-                                            </span>
-                                        ) : (
-                                            <span className="inline-flex items-center text-yellow-700 bg-yellow-100 px-2 py-1 rounded-full text-xs font-semibold">
-                                                <Clock size={14} className="mr-1" /> {inv.status}
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="p-3 border-b text-sm text-gray-600">
-                                        {inv.paid_at ? new Date(inv.paid_at).toLocaleString() : "-"}
-                                    </td>
-                                    <td className="p-3 border-b">
-                                        <div className="flex gap-2">
-                                            <button 
-                                                onClick={() => handleUpdateStatus(inv.invoice_id, inv.status)}
-                                                className="p-2 text-blue-600 hover:bg-blue-50 rounded"
-                                                title={`Mark as ${inv.status.toLowerCase() === 'paid' ? 'Unpaid' : 'Paid'}`}
-                                            >
-                                                <Edit2 size={18} />
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDelete(inv.invoice_id)}
-                                                className="p-2 text-red-600 hover:bg-red-50 rounded"
-                                                title="Delete Invoice"
-                                            >
-                                                <Trash2 size={18} />
-                                            </button>
-                                        </div>
-                                    </td>
+                <div className="card overflow-hidden border border-gray-100 shadow-sm">
+                    <div className="table-container">
+                        <table className="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Invoice ID</th>
+                                    <th>Student</th>
+                                    <th>Issue Date</th>
+                                    <th>Due Date</th>
+                                    <th className="text-right">Amount</th>
+                                    <th className="text-center">Status</th>
+                                    <th className="text-right">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {invoices.map((inv) => (
+                                    <tr key={inv.invoice_id} className="group hover:bg-gray-50/80 transition-colors">
+                                        <td className="font-semibold text-gray-500 font-mono text-sm">
+                                            INV-{inv.invoice_id.toString().padStart(4, '0')}
+                                        </td>
+                                        <td>
+                                            <div className="font-semibold text-dark">{inv.student_name}</div>
+                                            <div className="text-xs text-gray-500">{inv.student_email}</div>
+                                        </td>
+                                        <td className="text-gray-600 text-sm tabular-nums">
+                                            {new Date(inv.issue_date).toLocaleDateString()}
+                                        </td>
+                                        <td className="text-gray-600 text-sm tabular-nums">
+                                            {new Date(inv.due_date).toLocaleDateString()}
+                                        </td>
+                                        <td className="text-right font-bold text-dark tabular-nums">
+                                            ₹{inv.amount.toLocaleString()}
+                                        </td>
+                                        <td className="text-center">
+                                            {inv.status.toLowerCase() === "paid" ? (
+                                                <span className="badge badge-success">
+                                                    <CheckCircle size={12} className="mr-1" /> Paid
+                                                </span>
+                                            ) : (
+                                                <span className="badge badge-warning">
+                                                    <Clock size={12} className="mr-1" /> Pending
+                                                </span>
+                                            )}
+                                            {inv.paid_at && inv.status.toLowerCase() === "paid" && (
+                                                <div className="text-[10px] text-gray-400 mt-1">
+                                                    {new Date(inv.paid_at).toLocaleDateString()}
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td className="text-right">
+                                            <div className="flex justify-end gap-1">
+                                                <button 
+                                                    onClick={() => handleUpdateStatus(inv.invoice_id, inv.status)}
+                                                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors inline-flex"
+                                                    title={`Mark as ${inv.status.toLowerCase() === 'paid' ? 'Unpaid' : 'Paid'}`}
+                                                >
+                                                    <RotateCcw size={16} />
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleDelete(inv.invoice_id)}
+                                                    className="p-2 text-gray-400 hover:text-status-error hover:bg-status-errorBg rounded-lg transition-colors inline-flex"
+                                                    title="Delete Invoice"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
         </div>

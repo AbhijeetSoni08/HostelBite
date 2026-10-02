@@ -1,125 +1,184 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { EmptyState } from "../../../common/StateDisplays";
+import { TableSkeleton } from "../../../common/Skeleton";
+import { Receipt, IndianRupee, PieChart, TrendingDown, Target, Wallet } from "lucide-react";
+import { useToast } from "../../../common/ToastContext";
 
 const ViewExpenses = () => {
+    const { addToast } = useToast();
     const [expenses, setExpenses] = useState([]);
     const [totalAmount, setTotalAmount] = useState(0);
     const [categoryBreakdown, setCategoryBreakdown] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
     const totalBudget = 50000; // Example budget (you can make it dynamic later)
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("http://localhost:4000/api/expenses/viewAllExpenses");
+                const response = await axios.get("/api/expenses/viewAllExpenses");
                 setExpenses(response.data.expenses);
                 setTotalAmount(response.data.totalAmount);
                 setCategoryBreakdown(response.data.categoryBreakdown);
             } catch (err) {
                 console.error("Error fetching expenses:", err);
-                setError("Failed to load expenses. Please try again later.");
+                addToast("error", "Failed to load expenses. Please try again later.");
             } finally {
                 setLoading(false);
             }
         };
         fetchData();
-    }, []);
+    }, [addToast]);
+
+    const budgetRemaining = totalBudget - totalAmount;
+    const budgetPercent = Math.min((totalAmount / totalBudget) * 100, 100);
 
     return (
-        <div className="max-w-6xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-xl">
-            <h2 className="text-2xl font-semibold text-center mb-4">
-                Mess Expense Summary
-            </h2>
+        <div className="max-w-6xl mx-auto pb-10 font-sans animation-fade-in">
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-dark mb-2">Expense Analytics</h1>
+                <p className="text-gray-500">Track and manage your mess budget allocations.</p>
+            </div>
 
             {loading ? (
-                <p className="text-center text-gray-600">Loading expenses...</p>
-            ) : error ? (
-                <p className="text-center text-red-600">{error}</p>
+                <div className="space-y-6">
+                    <TableSkeleton rows={1} columns={3} />
+                    <TableSkeleton rows={5} columns={6} />
+                </div>
             ) : (
                 <>
                     {/* ===== Summary Section ===== */}
-                    <div className="grid md:grid-cols-3 sm:grid-cols-1 gap-4 mb-6 text-center">
-                        <div className="bg-blue-100 p-4 rounded-lg shadow">
-                            <h3 className="font-semibold text-gray-800">Total Budget</h3>
-                            <p className="text-2xl font-bold text-blue-700">₹{totalBudget}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className="card p-6 card-hover">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                                    <Target size={20} />
+                                </div>
+                                <h3 className="font-semibold text-gray-700">Monthly Budget</h3>
+                            </div>
+                            <p className="text-3xl font-bold text-dark">₹{totalBudget.toLocaleString()}</p>
                         </div>
-                        <div className="bg-green-100 p-4 rounded-lg shadow">
-                            <h3 className="font-semibold text-gray-800">Total Spent</h3>
-                            <p className="text-2xl font-bold text-green-700">₹{totalAmount}</p>
+
+                        <div className="card p-6 card-hover border-b-4 border-b-rose-500">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-rose-50 text-rose-600 rounded-lg">
+                                    <TrendingDown size={20} />
+                                </div>
+                                <h3 className="font-semibold text-gray-700">Total Spent</h3>
+                            </div>
+                            <p className="text-3xl font-bold text-dark">₹{totalAmount.toLocaleString()}</p>
                         </div>
-                        <div className="bg-yellow-100 p-4 rounded-lg shadow">
-                            <h3 className="font-semibold text-gray-800">Remaining</h3>
-                            <p className="text-2xl font-bold text-yellow-700">
-                                ₹{totalBudget - totalAmount}
-                            </p>
+
+                        <div className="card p-6 card-hover">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
+                                    <Wallet size={20} />
+                                </div>
+                                <h3 className="font-semibold text-gray-700">Remaining</h3>
+                            </div>
+                            <p className="text-3xl font-bold text-dark">₹{budgetRemaining.toLocaleString()}</p>
+                            <div className="w-full bg-gray-100 rounded-full h-1.5 mt-4">
+                                <div 
+                                    className={`h-1.5 rounded-full ${budgetPercent > 90 ? 'bg-rose-500' : 'bg-emerald-500'}`} 
+                                    style={{ width: `${budgetPercent}%` }}
+                                ></div>
+                            </div>
                         </div>
                     </div>
 
-                    {/* ===== Category Breakdown ===== */}
-                    <div className="mb-6">
-                        <h3 className="text-xl font-semibold mb-2 text-gray-800">
-                            Category-wise Spending
-                        </h3>
-                        <table className="min-w-full border border-gray-300 rounded-lg">
-                            <thead className="bg-gray-700 text-white">
-                                <tr>
-                                    <th className="p-2 border">Category</th>
-                                    <th className="p-2 border">Total Spent</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {categoryBreakdown.map((cat, index) => (
-                                    <tr key={index} className="text-center hover:bg-gray-100">
-                                        <td className="p-2 border">{cat.category}</td>
-                                        <td className="p-2 border text-green-700 font-semibold">
-                                            ₹{cat.categoryTotal}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* ===== Category Breakdown ===== */}
+                        <div className="lg:col-span-1">
+                            <div className="card p-6 h-full">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="p-2 bg-brand-50 text-brand-600 rounded-lg">
+                                        <PieChart size={20} />
+                                    </div>
+                                    <h3 className="font-bold text-gray-900">Spending by Category</h3>
+                                </div>
+                                
+                                {categoryBreakdown.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {categoryBreakdown.map((cat, index) => {
+                                            const catPercent = ((cat.categoryTotal / totalAmount) * 100).toFixed(0);
+                                            return (
+                                                <div key={index}>
+                                                    <div className="flex justify-between text-sm mb-1">
+                                                        <span className="font-medium text-gray-700">{cat.category}</span>
+                                                        <span className="font-bold text-dark">₹{cat.categoryTotal.toLocaleString()}</span>
+                                                    </div>
+                                                    <div className="w-full bg-gray-100 rounded-full h-1.5">
+                                                        <div className="bg-brand-500 h-1.5 rounded-full" style={{ width: `${catPercent}%` }}></div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <p className="text-gray-500 text-sm text-center py-4">No category data available.</p>
+                                )}
+                            </div>
+                        </div>
 
-                    {/* ===== All Expenses Table ===== */}
-                    <div className="overflow-x-auto">
-                        <h3 className="text-xl font-semibold mb-2 text-gray-800">
-                            Detailed Expenses
-                        </h3>
-                        <table className="min-w-full border border-gray-300 rounded-lg">
-                            <thead className="bg-blue-600 text-white">
-                                <tr>
-                                    <th className="p-2 border">#</th>
-                                    <th className="p-2 border">Title</th>
-                                    <th className="p-2 border">Category</th>
-                                    <th className="p-2 border">Qty</th>
-                                    <th className="p-2 border">Rate/kg</th>
-                                    <th className="p-2 border">Amount</th>
-                                    <th className="p-2 border">Date</th>
-                                    <th className="p-2 border">Description</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {expenses.map((exp, index) => (
-                                    <tr key={exp.id} className="text-center hover:bg-gray-100">
-                                        <td className="p-2 border">{index + 1}</td>
-                                        <td className="p-2 border">{exp.title}</td>
-                                        <td className="p-2 border">{exp.category}</td>
-                                        <td className="p-2 border">{exp.qty}</td>
-                                        <td className="p-2 border">{exp.rate_kg}</td>
-                                        <td className="p-2 border font-semibold text-green-700">
-                                            ₹{exp.amount}
-                                        </td>
-                                        <td className="p-2 border">
-                                            {new Date(exp.date).toLocaleDateString("en-IN")}
-                                        </td>
-                                        <td className="p-2 border text-gray-700">
-                                            {exp.description || "—"}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        {/* ===== All Expenses Table ===== */}
+                        <div className="lg:col-span-2">
+                            <div className="card overflow-hidden h-full flex flex-col">
+                                <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-gray-100 text-gray-600 rounded-lg">
+                                            <Receipt size={20} />
+                                        </div>
+                                        <h3 className="font-bold text-gray-900">Recent Transactions</h3>
+                                    </div>
+                                </div>
+                                
+                                {expenses.length > 0 ? (
+                                    <div className="overflow-x-auto custom-scrollbar flex-grow">
+                                        <table className="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Title</th>
+                                                    <th>Category</th>
+                                                    <th>Qty / Rate</th>
+                                                    <th className="text-right">Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {expenses.map((exp) => (
+                                                    <tr key={exp.id} className="group hover:bg-gray-50/50 transition-colors">
+                                                        <td className="text-gray-500 font-medium whitespace-nowrap">
+                                                            {new Date(exp.date).toLocaleDateString("en-IN", { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                        </td>
+                                                        <td>
+                                                            <div className="font-semibold text-gray-900">{exp.title}</div>
+                                                            {exp.description && <div className="text-xs text-gray-500 max-w-[200px] truncate">{exp.description}</div>}
+                                                        </td>
+                                                        <td>
+                                                            <span className="badge badge-secondary">{exp.category}</span>
+                                                        </td>
+                                                        <td className="text-gray-600">
+                                                            {exp.qty} × ₹{exp.rate_kg}
+                                                        </td>
+                                                        <td className="text-right font-bold text-rose-600 whitespace-nowrap flex items-center justify-end gap-1">
+                                                            - <IndianRupee size={12} />{exp.amount.toLocaleString()}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <div className="p-12">
+                                        <EmptyState 
+                                            icon={Receipt}
+                                            title="No expenses logged"
+                                            message="When you add new expenses, they will appear here."
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </>
             )}

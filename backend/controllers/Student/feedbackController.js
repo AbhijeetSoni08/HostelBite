@@ -34,7 +34,7 @@ exports.getAllFeedback = (req, res) => {
 // Get feedback by student
 exports.getFeedbackByStudent = (req, res) => {
     const { studentId } = req.params;
-    const sql = "SELECT * FROM feedback WHERE student_id = ? ORDER BY created_at DESC";
+    const sql = "SELECT * FROM feedback WHERE student_id = ? ORDER BY submitted_at DESC";
     db.query(sql, [studentId], (err, results) => {
         if (err) {
             console.error("Error fetching feedback:", err);

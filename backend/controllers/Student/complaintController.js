@@ -30,7 +30,6 @@ const getComplaintById = (req, res) => {
     const query = "SELECT * FROM complaints WHERE student_id = ?";
     pool.query(query, [id], (err, results) => {
         if (err) return res.status(500).json({ message: err.message });
-        if (results.length === 0) return res.status(404).json({ message: "Complaint not found" });
         res.status(200).json({ complaints: results });
     });
 };

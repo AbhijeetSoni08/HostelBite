@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Play, Hourglass, Square } from "lucide-react";
+import { Play, Hourglass, Square, ArrowLeft, ScanLine } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-const QRDisplay = ({ onBack }) => {
+const QRDisplay = () => {
+    const navigate = useNavigate();
     const [qrCode, setQrCode] = useState("");
     const [timer, setTimer] = useState(0);
     const [isRunning, setIsRunning] = useState(false);
@@ -10,9 +12,11 @@ const QRDisplay = ({ onBack }) => {
 
     const fetchQR = async () => {
         try {
-            const res = await axios.get("http://localhost:4000/api/qr/get-qr");
+            const res = await axios.get("/api/qr/get-qr", {
+                withCredentials: true
+            });
             setQrCode(res.data.qrUrl);
-            setTimer(30); // reset countdown
+            setTimer(30);
         } catch (err) {
             console.error("QR Fetch Error:", err);
         }
@@ -23,15 +27,11 @@ const QRDisplay = ({ onBack }) => {
         setIsRunning(true);
         fetchQR();
 
-        // refresh QR every 30 seconds
         const qrUpdater = setInterval(fetchQR, 30000);
-
-        // countdown timer
         const countdown = setInterval(() => {
             setTimer((prev) => (prev > 1 ? prev - 1 : 30));
         }, 1000);
 
-        // store intervals to clear later
         setIntervalId({ qrUpdater, countdown });
     };
 
@@ -43,40 +43,67 @@ const QRDisplay = ({ onBack }) => {
         setIsRunning(false);
         setQrCode("");
         setTimer(0);
-        onBack && onBack(); // if back navigation handler passed
     };
 
     useEffect(() => {
-        // cleanup on unmount
         return () => stopQR();
         // eslint-disable-next-line
     }, []);
 
-    return (
-        <div className="flex flex-col justify-center items-center gap-5 h-[100vh]">
-            <h2 className="text-2xl text-violet-600 font-semibold">Mess Attendance QR</h2>
+    const goBack = () => {
+        stopQR();
+        navigate(-1);
+    }
 
-            {!isRunning ? (
-                <button
-                    onClick={startQR}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center justify-center"
+    return (
+        <div className="max-w-4xl mx-auto pb-12 w-full animate-fade-in flex flex-col items-center justify-center min-h-[80vh]">
+            <div className="w-full flex items-center justify-between mb-8 self-start">
+                <button 
+                    onClick={goBack}
+                    className="btn btn-ghost px-3 py-2 -ml-3 text-gray-500"
                 >
-                    <Play className="mr-2" size={20} /> Start QR Generation
+                    <ArrowLeft size={20} className="mr-2" /> Back
                 </button>
-            ) : (
-                <>
-                    <img src={qrCode} alt="QR Code" width={300} />
-                    <h3 className="text-xl text-gray-700 flex items-center justify-center">
-                        <Hourglass className="mr-2" size={24} /> Refreshing in {timer}s
-                    </h3>
+            </div>
+
+            <div className="card w-full max-w-md p-8 flex flex-col items-center justify-center text-center">
+                <div className="w-16 h-16 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center mb-6">
+                    <ScanLine size={32} />
+                </div>
+                <h2 className="text-2xl font-bold text-dark mb-2">Live Attendance QR</h2>
+                <p className="text-gray-500 mb-8">
+                    Display this code for students to scan with their HostelBite app to mark meal attendance.
+                </p>
+
+                {!isRunning ? (
                     <button
-                        onClick={stopQR}
-                        className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 flex items-center justify-center"
+                        onClick={startQR}
+                        className="btn btn-primary w-full py-3 text-lg"
                     >
-                        <Square className="mr-2" size={20} /> Stop & Go Back
+                        <Play className="mr-2" size={20} /> Generate QR Code
                     </button>
-                </>
-            )}
+                ) : (
+                    <div className="flex flex-col items-center w-full animate-pop-in">
+                        <div className="p-4 bg-white rounded-2xl shadow-level-2 border border-gray-100 mb-6 relative overflow-hidden group">
+                            {/* Animated scanner line effect */}
+                            <div className="absolute top-0 left-0 w-full h-1 bg-brand-500 shadow-[0_0_10px_#f7c948] opacity-50 animate-[slideDown_3s_ease-in-out_infinite_alternate]"></div>
+                            <img src={qrCode} alt="Attendance QR Code" className="w-64 h-64 object-contain" />
+                        </div>
+                        
+                        <div className="flex items-center gap-2 text-status-warning font-medium mb-6 bg-status-warningBg px-4 py-2 rounded-pill">
+                            <Hourglass className="animate-spin-slow" size={18} /> 
+                            Refreshing in {timer}s
+                        </div>
+
+                        <button
+                            onClick={stopQR}
+                            className="btn btn-danger w-full py-3"
+                        >
+                            <Square className="mr-2" size={20} /> Stop Broadcasting
+                        </button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

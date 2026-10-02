@@ -4,15 +4,19 @@ import App from "./App";
 import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import axios from "axios";
+import { ToastProvider } from "./components/common/ToastContext";
 
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = "http://localhost:4000";
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || "http://localhost:4000";
+
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <ToastProvider>
+        <App />
+      </ToastProvider>
     </BrowserRouter>
   </React.StrictMode>
 );

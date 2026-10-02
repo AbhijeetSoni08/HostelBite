@@ -16,10 +16,9 @@ import StudentLayout from "./components/dashboard/StudentLayout";
 import StudentDashboard from "./components/dashboard/StudentDashboard";
 
 import ComplaintSection from "./components/student/ComplaintSection";
-import FeedbackSection from "./components/student/FeedbackSection";
-import NotificationSection from "./components/student/NotificationSection";
-import PaymentSection from "./components/student/PaymentSection";
-import MenuSection from "./components/common/Menu";
+// import FeedbackSection from "./components/student/FeedbackSection";
+// import PaymentSection from "./components/student/PaymentSection";
+// import MenuSection from "./components/common/Menu";
 import MarkAttendance from "./components/student/MarkAttendance";
 
 
@@ -30,17 +29,17 @@ import ViewMenu from "./components/management/manageFunctions/menuFunctions/View
 import MessPayment from "./components/student/studentFunctions/MessPayment";
 import ScanQR from "./components/student/studentFunctions/ScanQR";
 import InvoiceHistory from "./components/student/studentFunctions/InvoiceHistory";
-import TrackPayment from "./components/student/studentFunctions/TrackPayment";
-// import admin components
+import AttendanceHistory from "./components/student/studentFunctions/AttendanceHistory";
+// import TrackPayment from "./components/student/studentFunctions/TrackPayment";
 import AdminDashboard from "./components/dashboard/AdminDashboard";
 import AdminLayout from "./components/dashboard/AdminLayout";
 
-import ManageFeedbackAttendance from "./components/management/ManageFeedbackAttendance";
-import ManageMenuExpenses from "./components/management/ManageMenuExpenses";
-import ManagePaymentInvoice from "./components/management/ManagePaymentInvoice";
-import ManageStaffSalary from "./components/management/ManageStaffSalary";
-import ManageComplaintNotification from "./components/management/MangeComplaintNotification";
-import UserManagement from "./components/management/UserManagement";
+import FeedbackAttendanceHub from "./components/common/FeedbackAttendanceHub";
+import MenuExpensesHub from "./components/common/MenuExpensesHub";
+import PaymentInvoiceHub from "./components/common/PaymentInvoiceHub";
+import AdminSalaryHub from "./components/common/AdminSalaryHub";
+import AdminComplaintHub from "./components/common/AdminComplaintHub";
+import UserManagementHub from "./components/common/UserManagementHub";
 import GenerateInvoice from "./components/management/manageFunctions/paymentFunctions/GenerateInvoice";
 import AdminInvoiceHistory from "./components/management/manageFunctions/paymentFunctions/AdminInvoiceHistory";
 
@@ -62,9 +61,8 @@ import ViewSalary from "./components/management/manageFunctions/staffFunctions/V
 // import staff components
 import StaffDashboard from "./components/dashboard/StaffDashboard";
 import StaffLayout from "./components/dashboard/StaffLayout";
-import ComplaintNotification from "./components/staff/ComplaintNotification";
-import FeedbackAttendance from "./components/staff/FeedbackAttendance";
-import SalarySection from "./components/staff/SalarySection";
+import StaffComplaintHub from "./components/common/StaffComplaintHub";
+// import SalarySection from "./components/staff/SalarySection";
 
 
 
@@ -81,9 +79,9 @@ function App() {
  
 
   return (
-    <div className="min-h-screen bg-gray-100 overflow-x-hidden">
+    <div className="min-h-screen flex flex-col font-sans text-gray-900 overflow-x-hidden">
       <Navbar />
-      <div className="p-8">
+      <div className="flex-1 flex flex-col w-full h-full">
         <Routes>
 
 
@@ -110,11 +108,11 @@ function App() {
 
              {/* Default dashboard */}
             <Route index element={<StudentDashboard />} />
-            <Route path="complaint-section" element={<ComplaintSection />}/>
-            <Route path="feedback-section" element={<FeedbackSection />}/>
-            <Route path="menu-section" element={<MenuSection />}/>
-            <Route path="notification-section" element={<NotificationSection />}/>
-            <Route path="payment-section" element={<PaymentSection />}/>
+            <Route path="complaint-section" element={<GetAllComplaintsByStudent />}/>
+            <Route path="feedback-section" element={<AttendanceHistory />}/>
+            <Route path="menu-section" element={<ViewMenu />}/>
+            <Route path="notification-section" element={<UserNotifications />}/>
+            <Route path="payment-section" element={<InvoiceHistory />}/>
           </Route>
 
               
@@ -127,12 +125,12 @@ function App() {
             </ProtectedRoute>
           }>
             <Route index element={<AdminDashboard />} />
-            <Route path="feedback-section" element={<ManageFeedbackAttendance />}/>
-            <Route path="menu-section" element={<ManageMenuExpenses />}/>
-            <Route path="payments-section" element={<ManagePaymentInvoice />}/>
-            <Route path="salary-section" element={<ManageStaffSalary/>}/>
-            <Route path="complaints-section" element={<ManageComplaintNotification />}/>
-            <Route path="users-section" element={<UserManagement />}/>
+            <Route path="feedback-section" element={<FeedbackAttendanceHub />}/>
+            <Route path="menu-section" element={<MenuExpensesHub />}/>
+            <Route path="payments-section" element={<PaymentInvoiceHub />}/>
+            <Route path="salary-section" element={<AdminSalaryHub />}/>
+            <Route path="complaints-section" element={<AdminComplaintHub />}/>
+            <Route path="users-section" element={<UserManagementHub />}/>
           </Route>
 
 
@@ -144,10 +142,10 @@ function App() {
             </ProtectedRoute>
           }>
             <Route index element={<StaffDashboard/>}/>
-            <Route path="complaints-section" element={<ComplaintNotification/>}/>
-            <Route path="feedback-section" element={<FeedbackAttendance/>}/>
-            <Route path="salary-section" element={<SalarySection/>}/>
-            <Route path="menu-section" element={<MenuSection/>}/>
+            <Route path="complaints-section" element={<StaffComplaintHub/>}/>
+            <Route path="feedback-section" element={<FeedbackAttendanceHub/>}/>
+            <Route path="salary-section" element={<ViewSalary/>}/>
+            <Route path="menu-section" element={<ViewMenu/>}/>
           </Route>
           
           <Route path="/view-salary" element={<ProtectedRoute allowedRoles={["admin", "staff"]}><ViewSalary /></ProtectedRoute>} />
@@ -159,7 +157,6 @@ function App() {
           <Route path="complaints" element={<ProtectedRoute allowedRoles={["student"]}><GetAllComplaintsByStudent /></ProtectedRoute>} /> 
           <Route path="/student/make-payment" element={<ProtectedRoute allowedRoles={["student"]}><MessPayment /></ProtectedRoute>} />
           <Route path="/student/invoice-history" element={<ProtectedRoute allowedRoles={["student"]}><InvoiceHistory /></ProtectedRoute>} />
-          <Route path="/student/track-payment" element={<ProtectedRoute allowedRoles={["student"]}><TrackPayment /></ProtectedRoute>} />
           <Route path="/mark-attendance" element={<ProtectedRoute allowedRoles={["student"]}><ScanQR /></ProtectedRoute>} />
 
     
@@ -175,13 +172,13 @@ function App() {
           <Route path="/update-menu" element={<ProtectedRoute allowedRoles={["admin"]}><UpdateMenu /></ProtectedRoute>} />
           <Route path="/management/menu/menu-items" element={<ProtectedRoute allowedRoles={["admin"]}><MenuItems /></ProtectedRoute>} />
           <Route path="/delete-menu" element={<ProtectedRoute allowedRoles={["admin"]}><DeleteMenu /></ProtectedRoute>} />
-          <Route path="feedback-list" element={<ProtectedRoute allowedRoles={["admin"]}><FeedbackList /></ProtectedRoute>} />
+          <Route path="feedback-list" element={<ProtectedRoute allowedRoles={["admin", "staff"]}><FeedbackList /></ProtectedRoute>} />
           <Route path="/add-expense" element={<ProtectedRoute allowedRoles={["admin"]}><AddExpense /></ProtectedRoute>} />
           <Route path="/view-expenses" element={<ProtectedRoute allowedRoles={["admin"]}><ViewExpenses /></ProtectedRoute>} />
           <Route path="/management/expense/expense-items" element={<ProtectedRoute allowedRoles={["admin"]}><ExpenseItems /></ProtectedRoute>} />
           {/* Complaints  */}
-          <Route path="all-complaints" element={<ProtectedRoute allowedRoles={["admin"]}><AllComplaints /></ProtectedRoute>} />
-          <Route path="get-attendance-qr" element={<ProtectedRoute allowedRoles={["admin"]}><QRDisplay /></ProtectedRoute>} />
+          <Route path="all-complaints" element={<ProtectedRoute allowedRoles={["admin", "staff"]}><AllComplaints /></ProtectedRoute>} />
+          <Route path="get-attendance-qr" element={<ProtectedRoute allowedRoles={["admin", "staff"]}><QRDisplay /></ProtectedRoute>} />
           <Route path="/remove-students" element={<ProtectedRoute allowedRoles={["admin"]}><RemoveStudents/></ProtectedRoute>}/>
           <Route path="/send-notification" element={<ProtectedRoute allowedRoles={["admin"]}><SendNotification/></ProtectedRoute>}/>
           <Route path="/admin/generate-invoice" element={<ProtectedRoute allowedRoles={["admin"]}><GenerateInvoice /></ProtectedRoute>} />

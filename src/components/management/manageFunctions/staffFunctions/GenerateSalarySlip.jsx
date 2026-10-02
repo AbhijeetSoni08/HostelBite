@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { FileCheck2, ArrowLeft, Loader2, IndianRupee, Calendar } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "../../../common/ToastContext";
 
 const GenerateSalarySlip = () => {
+    const navigate = useNavigate();
+    const { addToast } = useToast();
     const [staffList, setStaffList] = useState([]);
     const [formData, setFormData] = useState({
         staff_id: "",
@@ -9,20 +14,25 @@ const GenerateSalarySlip = () => {
         month: "",
         status: "Paid"
     });
-    const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
+    const [fetchingStaff, setFetchingStaff] = useState(true);
 
     useEffect(() => {
         const fetchStaff = async () => {
             try {
-                const res = await axios.get("http://localhost:4000/api/staff");
+                const res = await axios.get("/api/staff", {
+                    withCredentials: true
+                });
                 setStaffList(res.data);
             } catch (err) {
                 console.error("Failed to fetch staff", err);
+                addToast("Failed to fetch staff list", "error");
+            } finally {
+                setFetchingStaff(false);
             }
         };
         fetchStaff();
-    }, []);
+    }, [addToast]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -40,100 +50,133 @@ const GenerateSalarySlip = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setMessage("");
 
         if (!formData.staff_id || !formData.amount || !formData.month) {
-            setMessage("Please fill all required fields.");
+            addToast("Please fill all required fields", "warning");
             setLoading(false);
             return;
         }
 
         try {
-            await axios.post("http://localhost:4000/api/salary/", formData);
-            setMessage("✅ Salary slip generated successfully!");
+            await axios.post("/api/salary/", formData, {
+                withCredentials: true
+            });
+            addToast("Salary slip generated successfully", "success");
             setFormData({ staff_id: "", amount: "", month: "", status: "Paid" });
         } catch (err) {
             console.error(err);
-            setMessage("❌ Failed to generate salary slip.");
+            addToast("Failed to generate salary slip", "error");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-lg rounded-xl">
-            <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">Generate Salary Slip</h2>
-            
-            <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                    <label className="block font-medium text-gray-700 mb-1">Select Staff *</label>
-                    <select
-                        name="staff_id"
-                        value={formData.staff_id}
-                        onChange={handleChange}
-                        className="w-full border border-gray-300 p-2 rounded-lg focus:ring focus:ring-indigo-200 focus:outline-none"
-                        required
-                    >
-                        <option value="">-- Choose Staff --</option>
-                        {staffList.map(staff => (
-                            <option key={staff.staff_id} value={staff.staff_id}>
-                                {staff.name} ({staff.role})
-                            </option>
-                        ))}
-                    </select>
+        <div className="max-w-2xl mx-auto py-8 font-sans animate-fade-in">
+            <button onClick={() => navigate("/admin-dashboard/salary-section")} className="flex items-center text-gray-500 hover:text-dark transition-colors mb-6 font-medium text-sm">
+                <ArrowLeft size={16} className="mr-1" /> Back to Payroll
+            </button>
+
+            <div className="flex items-center gap-3 mb-8">
+                <div className="p-3 bg-brand-50 rounded-xl text-brand-600 shadow-sm">
+                    <FileCheck2 size={28} />
                 </div>
-
                 <div>
-                    <label className="block font-medium text-gray-700 mb-1">Amount (₹) *</label>
-                    <input
-                        type="number"
-                        name="amount"
-                        value={formData.amount}
-                        onChange={handleChange}
-                        className="w-full border border-gray-300 p-2 rounded-lg focus:ring focus:ring-indigo-200 focus:outline-none"
-                        required
-                    />
+                    <h1 className="text-3xl font-bold text-dark">Process Payroll</h1>
+                    <p className="text-gray-500">Generate a new monthly salary slip for staff.</p>
                 </div>
+            </div>
 
-                <div>
-                    <label className="block font-medium text-gray-700 mb-1">Month / Year *</label>
-                    <input
-                        type="month"
-                        name="month"
-                        value={formData.month}
-                        onChange={handleChange}
-                        className="w-full border border-gray-300 p-2 rounded-lg focus:ring focus:ring-indigo-200 focus:outline-none"
-                        required
-                    />
-                </div>
+            <div className="card p-6 md:p-8">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    
+                    <div>
+                        <label className="label-text">Select Staff Member</label>
+                        {fetchingStaff ? (
+                            <div className="h-11 bg-gray-100 animate-pulse rounded-md w-full"></div>
+                        ) : (
+                            <select
+                                name="staff_id"
+                                value={formData.staff_id}
+                                onChange={handleChange}
+                                className="input-field bg-gray-50/50"
+                                required
+                            >
+                                <option value="">-- Choose Staff --</option>
+                                {staffList.map(staff => (
+                                    <option key={staff.staff_id} value={staff.staff_id}>
+                                        {staff.name} — {staff.role || "No Role"}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
+                    </div>
 
-                <div>
-                    <label className="block font-medium text-gray-700 mb-1">Status</label>
-                    <select
-                        name="status"
-                        value={formData.status}
-                        onChange={handleChange}
-                        className="w-full border border-gray-300 p-2 rounded-lg focus:ring focus:ring-indigo-200 focus:outline-none"
-                    >
-                        <option value="Paid">Paid</option>
-                        <option value="Pending">Pending</option>
-                    </select>
-                </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="label-text">Disbursement Amount</label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                                    <IndianRupee size={16} />
+                                </div>
+                                <input
+                                    type="number"
+                                    name="amount"
+                                    value={formData.amount}
+                                    onChange={handleChange}
+                                    className="input-field pl-9 bg-gray-50/50 font-mono"
+                                    placeholder="0.00"
+                                    required
+                                />
+                            </div>
+                        </div>
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-indigo-600 text-white font-semibold py-2 rounded-lg hover:bg-indigo-700 transition disabled:bg-gray-400"
-                >
-                    {loading ? "Generating..." : "Generate Salary Slip"}
-                </button>
-            </form>
+                        <div>
+                            <label className="label-text">Billing Month</label>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
+                                    <Calendar size={16} />
+                                </div>
+                                <input
+                                    type="month"
+                                    name="month"
+                                    value={formData.month}
+                                    onChange={handleChange}
+                                    className="input-field pl-9 bg-gray-50/50"
+                                    required
+                                />
+                            </div>
+                        </div>
+                    </div>
 
-            {message && (
-                <p className={`mt-4 text-center font-medium ${message.includes('✅') ? 'text-green-600' : 'text-red-500'}`}>
-                    {message}
-                </p>
-            )}
+                    <div>
+                        <label className="label-text">Payment Status</label>
+                        <select
+                            name="status"
+                            value={formData.status}
+                            onChange={handleChange}
+                            className="input-field bg-gray-50/50"
+                        >
+                            <option value="Paid">Paid (Funds Disbursed)</option>
+                            <option value="Pending">Pending (Scheduled for later)</option>
+                        </select>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100 flex justify-end">
+                        <button
+                            type="submit"
+                            disabled={loading || fetchingStaff}
+                            className="btn btn-primary px-8 py-2.5 min-w-[200px]"
+                        >
+                            {loading ? (
+                                <><Loader2 size={18} className="mr-2 animate-spin" /> Processing...</>
+                            ) : (
+                                "Generate Salary Slip"
+                            )}
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 };

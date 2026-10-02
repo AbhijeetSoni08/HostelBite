@@ -70,8 +70,8 @@ exports.updateMenu = (req, res) => {
     
     const { day, meal_type, items } = req.body;
 
-    const sql = "UPDATE menu SET meal_type = ?, items = ? WHERE day = ?";
-    db.query(sql, [meal_type, items, day], (err, result) => {
+    const sql = "UPDATE menu SET items = ? WHERE day = ? AND meal_type = ?";
+    db.query(sql, [items, day, meal_type], (err, result) => {
         if (err) {
             console.error("Error updating menu:", err);
             return res.status(500).json({ error: "Database error" });

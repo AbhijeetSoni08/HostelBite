@@ -15,7 +15,7 @@ const TrackPayment = () => {
                 const student_id = localStorage.getItem("userId");
                 if (!student_id) throw new Error("Student ID not found");
 
-                const res = await axios.get(`http://localhost:4000/api/invoices/student/${student_id}`);
+                const res = await axios.get(`/api/invoices/student/${student_id}`);
                 // Filter only unpaid invoices
                 const unpaid = res.data.filter(inv => inv.status.toLowerCase() !== "paid");
                 setInvoices(unpaid);

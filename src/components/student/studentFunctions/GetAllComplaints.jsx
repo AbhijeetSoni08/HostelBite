@@ -1,89 +1,113 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Plus, MessageSquare, ArrowLeft } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { TableSkeleton } from "../../common/Skeleton";
+import { EmptyState, ErrorState } from "../../common/StateDisplays";
 
 const ViewComplaints = () => {
+    const navigate = useNavigate();
     const [complaints, setComplaints] = useState([]);
-    const [message, setMessage] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
-    const handleFetchComplaints = async () => {
+    const fetchComplaints = async () => {
         setLoading(true);
-        setMessage("");
-
+        setError(false);
         try {
             const student_id = localStorage.getItem("userId");
-
-            // Send request with token in Authorization header
-            const res = await axios.get(`http://localhost:4000/api/complaints/complaint/${student_id}`, {
-               student_id,
-            })
-
+            const res = await axios.get(`/api/complaints/complaint/${student_id}`, {
+                withCredentials: true
+            });
             setComplaints(res.data.complaints || []);
-            setMessage("Complaints fetched successfully!");
-
-            
         } catch (err) {
-            console.error(err);
-            setMessage(
-                err.response?.data?.message || "Failed to fetch complaints. Try again."
-            );
+            console.error("Failed to fetch complaints", err);
+            setError(true);
         } finally {
             setLoading(false);
         }
     };
 
+    useEffect(() => {
+        fetchComplaints();
+    }, []);
+
+    const getStatusBadge = (status) => {
+        if (status === "Pending") return <span className="badge badge-warning">Pending</span>;
+        if (status === "Resolved") return <span className="badge badge-success">Resolved</span>;
+        return <span className="badge badge-neutral">{status}</span>;
+    };
+
     return (
-        <div className="max-w-4xl mx-auto bg-white shadow-md rounded-xl p-6 mt-10">
-            <h2 className="text-2xl font-semibold text-center mb-6">
-                View Complaints
-            </h2>
+        <div className="max-w-6xl mx-auto pb-12 w-full animate-fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={() => navigate(-1)} 
+                        className="p-2 -ml-2 rounded-lg text-gray-500 hover:text-dark hover:bg-gray-100 transition-colors"
+                    >
+                        <ArrowLeft size={20} />
+                    </button>
+                    <div>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-dark flex items-center gap-2">
+                            <MessageSquare className="text-brand-500" size={28} /> My Complaints
+                        </h1>
+                        <p className="text-gray-500 mt-1">Track issues and maintenance requests</p>
+                    </div>
+                </div>
+                
+                <Link to="/submit-complaint" className="btn btn-primary px-4 py-2 whitespace-nowrap">
+                    <Plus size={18} className="mr-2" /> New Complaint
+                </Link>
+            </div>
 
-            <button
-                onClick={handleFetchComplaints}
-                disabled={loading}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
-            >
-                {loading ? "Loading..." : "Get All Complaints"}
-            </button>
-
-            {message && (
-                <p className="text-center mt-4 text-gray-700 font-medium">{message}</p>
-            )}
-
-            {complaints.length > 0 && (
-                <table className="w-full mt-6 border border-gray-300 text-sm">
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <th className="p-2 border">ID</th>
-                            <th className="p-2 border">Title</th>
-                            <th className="p-2 border">Description</th>
-                            <th className="p-2 border">Status</th>
-                            <th className="p-2 border">Submitted At</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {complaints.map((c) => (
-                            <tr key={c.complaint_id}>
-                                <td className="border p-2 text-center">{c.complaint_id}</td>
-                                <td className="border p-2">{c.title}</td>
-                                <td className="border p-2">{c.description}</td>
-                                <td
-                                    className={`border p-2 text-center font-medium ${c.status === "Pending"
-                                            ? "text-yellow-600"
-                                            : c.status === "Resolved"
-                                                ? "text-green-600"
-                                                : "text-gray-600"
-                                        }`}
-                                >
-                                    {c.status}
-                                </td>
-                                <td className="border p-2 text-center">
-                                    {new Date(c.submitted_at).toLocaleString()}
-                                </td>
+            {loading ? (
+                <TableSkeleton rows={5} />
+            ) : error ? (
+                <ErrorState 
+                    title="Unable to load complaints" 
+                    description="There was a problem reaching our servers." 
+                    onRetry={fetchComplaints} 
+                />
+            ) : complaints.length === 0 ? (
+                <EmptyState 
+                    icon={MessageSquare}
+                    title="No complaints filed"
+                    description="Everything looks good! You haven't raised any issues yet."
+                    actionLabel="Raise an Issue"
+                    onAction={() => navigate('/submit-complaint')}
+                />
+            ) : (
+                <div className="table-container">
+                    <table className="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Submitted On</th>
+                                <th>Status</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {complaints.map((c) => (
+                                <tr key={c.complaint_id}>
+                                    <td className="text-gray-500 font-medium tabular-nums">#{c.complaint_id}</td>
+                                    <td className="font-semibold text-gray-800">{c.title}</td>
+                                    <td className="max-w-xs truncate text-gray-600" title={c.description}>
+                                        {c.description}
+                                    </td>
+                                    <td className="tabular-nums">
+                                        {new Date(c.submitted_at).toLocaleDateString(undefined, { 
+                                            month: 'short', day: 'numeric', year: 'numeric' 
+                                        })}
+                                    </td>
+                                    <td>{getStatusBadge(c.status)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     );
