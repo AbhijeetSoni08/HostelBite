@@ -10,10 +10,13 @@ node_modules/
 
 # testing
 /coverage
-
+test-aiven.js
+test-uri.js
+backend/test-aiven.js
+backend/test-uri.js
 # production
 /build
-
+/dist
 # misc
 .DS_Store
 .env.local
@@ -25,5 +28,3 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-.vercel
-.env*
