@@ -26,7 +26,8 @@ const app = express();
 // CORS — allow both local dev and deployed frontend
 const allowedOrigins = [
   "http://localhost:3000",
-  process.env.FRONTEND_URL, // Set this in Vercel env vars
+  "https://hostel-bite-abhijeet.vercel.app",
+  process.env.FRONTEND_URL, // Fallback if set in env vars
 ].filter(Boolean);
 
 app.use(
