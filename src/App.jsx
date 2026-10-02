@@ -15,11 +15,11 @@ import ProtectedRoute from "./components/common/ProtectedRoute";
 import StudentLayout from "./components/dashboard/StudentLayout";
 import StudentDashboard from "./components/dashboard/StudentDashboard";
 
-import ComplaintSection from "./components/student/ComplaintSection";
+// import ComplaintSection from "./components/student/ComplaintSection";
 // import FeedbackSection from "./components/student/FeedbackSection";
 // import PaymentSection from "./components/student/PaymentSection";
 // import MenuSection from "./components/common/Menu";
-import MarkAttendance from "./components/student/MarkAttendance";
+// import MarkAttendance from "./components/student/MarkAttendance";
 
 
 import SubmitComplaint from "./components/student/studentFunctions/SubmitComplaint";

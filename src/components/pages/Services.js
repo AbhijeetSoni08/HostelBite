@@ -8,8 +8,7 @@ import {
     MessageSquare,
     Users,
     BarChart3,
-    FileText,
-    ArrowRight
+    FileText
 } from "lucide-react";
 
 export default function Services() {

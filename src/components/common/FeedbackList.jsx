@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Star, ArrowLeft, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { TableSkeleton } from "./Skeleton";
+
 import { EmptyState, ErrorState } from "./StateDisplays";
 
 const FeedbackList = () => {

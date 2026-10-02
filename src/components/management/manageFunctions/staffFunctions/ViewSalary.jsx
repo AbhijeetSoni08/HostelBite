@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { CheckCircle, Clock, Trash2, Edit2, RotateCcw, Wallet } from "lucide-react";
+import { CheckCircle, Clock, Trash2, RotateCcw, Wallet } from "lucide-react";
 import { TableSkeleton } from "../../../common/Skeleton";
 import { ErrorState, EmptyState } from "../../../common/StateDisplays";
 import { useToast } from "../../../common/ToastContext";

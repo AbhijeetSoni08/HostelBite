@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { Menu, X, LogOut, LayoutDashboard, User } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 
 const Navbar = () => {
   const navigate = useNavigate();

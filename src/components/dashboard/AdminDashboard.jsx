@@ -10,7 +10,6 @@ import {
   Receipt,
   QrCode,
   Bell,
-  UserCircle,
   LogOut,
   Settings
 } from "lucide-react";

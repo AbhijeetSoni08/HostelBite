@@ -1,9 +1,7 @@
 import React from "react";
-import { Utensils, Users, Heart, Lightbulb, Star, Mail, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
-import nizam from '../../assets/nizam.jpg';
-import abhijeet from '../../assets/Abhijeet.jpg';
-import amarjeet from "../../assets/amarjeet.jpeg";
+import { Utensils, Heart, Lightbulb, Star, Mail } from "lucide-react";
+
+
 const About = () => {
     return (
         <div className="min-h-screen font-sans">

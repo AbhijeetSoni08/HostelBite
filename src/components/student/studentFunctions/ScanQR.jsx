@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { CheckCircle2, XCircle, Loader2, ScanLine, ArrowLeft } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, ArrowLeft } from "lucide-react";
 import QrReader from "react-qr-scanner";
 import AttendanceSetup from "./AttendanceSetup";
 

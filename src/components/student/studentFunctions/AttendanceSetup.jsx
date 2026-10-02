@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { QrCode, UtensilsCrossed, Settings2, Loader2, ArrowRight } from "lucide-react";
+import { QrCode, Settings2, Loader2, ArrowRight } from "lucide-react";
 
 const AttendanceSetup = ({ onSave }) => {
     const [details, setDetails] = useState({

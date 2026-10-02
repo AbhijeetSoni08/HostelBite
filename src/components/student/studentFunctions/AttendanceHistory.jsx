@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { BookOpen, Search, ArrowLeft, Plus } from "lucide-react";
+import { BookOpen, ArrowLeft, Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { TableSkeleton } from "../../common/Skeleton";
 import { EmptyState, ErrorState } from "../../common/StateDisplays";

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Plus, Coffee, Utensils, UtensilsCrossed, Settings, Trash2, Edit2, ArrowLeft, RefreshCw, AlertTriangle } from "lucide-react";
+import { Plus, Coffee, Utensils, UtensilsCrossed, Settings, Trash2, Edit2, ArrowLeft, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { TableSkeleton } from "../../common/Skeleton";
 import { ErrorState, EmptyState } from "../../common/StateDisplays";

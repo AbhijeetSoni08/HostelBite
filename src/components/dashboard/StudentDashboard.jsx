@@ -22,7 +22,7 @@ const StudentDashboard = () => {
   const [userName, setUserName] = useState("Student");
   
   // Simulated or fetched data
-  const [attendancePercent, setAttendancePercent] = useState(85);
+  const attendancePercent = 85;
   const [pendingFees, setPendingFees] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
