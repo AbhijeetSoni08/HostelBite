@@ -11,7 +11,7 @@ const dbConnection = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0,
     // Aiven requires SSL for external connections
-    ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: true } : undefined,
+    ssl: process.env.DB_SSL === "true" ? { rejectUnauthorized: false } : undefined,
 });
 
 module.exports = dbConnection;
