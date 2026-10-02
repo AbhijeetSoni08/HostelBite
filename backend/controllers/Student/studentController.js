@@ -2,7 +2,7 @@ const db = require("../../config/Database");  // MySQL connection
 
 //  Get all students
 exports.getAllStudents = (req, res) => {
-    const sql = "SELECT student_id, name, email, course, year, room_number FROM STUDENT";
+    const sql = "SELECT student_id, name, email, course, year, room_number FROM student";
     db.query(sql, (err, results) => {
         if (err) return res.status(500).json({ message: "DB Error", error: err });
         res.status(200).json(results);
@@ -13,7 +13,7 @@ exports.getAllStudents = (req, res) => {
 exports.getStudentById = (req, res) => {
     const {id } = req.params;
     student_id = id;
-    const sql = "SELECT student_id, name, email, room_number FROM STUDENT WHERE student_id = ?";
+    const sql = "SELECT student_id, name, email, room_number FROM student WHERE student_id = ?";
     db.query(sql, [student_id], (err, results) => {
         if (err) return res.status(500).json({ message: "DB Error", error: err });
         if (results.length === 0) return res.status(404).json({ message: "Student not found" });
@@ -26,7 +26,7 @@ exports.updateStudent = (req, res) => {
     const { id } = req.params;
     const { name, email, room_number } = req.body;
 
-    const sql = "UPDATE STUDENT SET name = ?, email = ?, room_number = ? WHERE student_id = ?";
+    const sql = "UPDATE student SET name = ?, email = ?, room_number = ? WHERE student_id = ?";
     db.query(sql, [name, email, room_number, id], (err, result) => {
         if (err) return res.status(500).json({ message: "DB Error", error: err });
         if (result.affectedRows === 0) return res.status(404).json({ message: "Student not found" });

@@ -36,9 +36,9 @@ exports.markAttendance = (req, res) => {
 exports.getAllAttendance = (req, res) => {
     const sql = `SELECT A.attendance_id, A.date, A.meal_type, A.status, 
                       S.name AS student_name, M.items AS menu_items
-               FROM ATTENDANCE A
-               JOIN STUDENT S ON A.student_id = S.student_id
-               JOIN MENU M ON A.menu_id = M.menu_id`;
+               FROM attendance A
+               JOIN student S ON A.student_id = S.student_id
+               JOIN menu M ON A.menu_id = M.menu_id`;
     db.query(sql, (err, results) => {
         if (err) return res.status(500).json({ message: "DB Error", error: err });
         res.status(200).json(results);
@@ -49,8 +49,8 @@ exports.getAllAttendance = (req, res) => {
 exports.getAttendanceByStudent = (req, res) => {
     const { studentId } = req.params;
     const sql = `SELECT A.attendance_id, A.date, A.meal_type, A.status, M.items AS menu_items
-               FROM ATTENDANCE A
-               JOIN MENU M ON A.menu_id = M.menu_id
+               FROM attendance A
+               JOIN menu M ON A.menu_id = M.menu_id
                WHERE A.student_id = ?`;
     db.query(sql, [studentId], (err, results) => {
         if (err) return res.status(500).json({ message: "DB Error", error: err });
@@ -65,7 +65,7 @@ exports.updateAttendance = (req, res) => {
 
     if (!status) return res.status(400).json({ message: "Status is required" });
 
-    const sql = "UPDATE ATTENDANCE SET status = ? WHERE attendance_id = ?";
+    const sql = "UPDATE attendance SET status = ? WHERE attendance_id = ?";
     db.query(sql, [status, id], (err, result) => {
         if (err) return res.status(500).json({ message: "DB Error", error: err });
         if (result.affectedRows === 0) return res.status(404).json({ message: "Attendance record not found" });
@@ -76,7 +76,7 @@ exports.updateAttendance = (req, res) => {
 // ✅ Delete attendance
 exports.deleteAttendance = (req, res) => {
     const { id } = req.params;
-    const sql = "DELETE FROM ATTENDANCE WHERE attendance_id = ?";
+    const sql = "DELETE FROM attendance WHERE attendance_id = ?";
     db.query(sql, [id], (err, result) => {
         if (err) return res.status(500).json({ message: "DB Error", error: err });
         if (result.affectedRows === 0) return res.status(404).json({ message: "Attendance record not found" });

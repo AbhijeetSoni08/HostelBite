@@ -24,7 +24,7 @@ exports.signup = async (req, res) => {
                 return res.status(400).json({ message: "All required fields must be provided" });
             }
 
-            const sql = `INSERT INTO STUDENT (name, email, password, room_number,course,year) VALUES (?, ?, ?, ?, ?, ?)`;
+            const sql = `INSERT INTO student (name, email, password, room_number,course,year) VALUES (?, ?, ?, ?, ?, ?)`;
             db.query(sql, [name, email, hashedPassword, room_number, course, year], (err, result) => {
                 if (err) {
                     if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: "Email is already in use" });
@@ -36,7 +36,7 @@ exports.signup = async (req, res) => {
             if (!staffRole) {
                 return res.status(400).json({ message: "fill staff role" });
             }
-            const sql = `INSERT INTO STAFF (name, role, email, password, salary_amount) VALUES (?, ?, ?, ?, ?)`;
+            const sql = `INSERT INTO staff (name, role, email, password, salary_amount) VALUES (?, ?, ?, ?, ?)`;
             db.query(sql, [name, staffRole, email, hashedPassword, 0], (err, result) => {
                 if (err) {
                     if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: "Email is already in use" });
@@ -45,7 +45,7 @@ exports.signup = async (req, res) => {
                 res.status(201).json({ message: "Staff registered", staffId: result.insertId });
             });
         } else if (role === "admin") {
-            const sql = `INSERT INTO MANAGEMENT (name, email, password) VALUES (?, ?, ?)`;
+            const sql = `INSERT INTO management (name, email, password) VALUES (?, ?, ?)`;
             db.query(sql, [name, email, hashedPassword], (err, result) => {
                 if (err) {
                     if (err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: "Email is already in use" });
@@ -70,23 +70,27 @@ exports.login = async (req, res) => {
             return res.status(400).json({ message: "Email, password and role required" });
         }
 
+        // SQL Query based on role (using lowercase table names for MySQL compatibility)
         let sql = "";
         if (role === "student") {
-            sql = "SELECT * FROM STUDENT WHERE email = ?";
+            sql = "SELECT * FROM student WHERE email = ?";
         } else if (role === "staff") {
-            sql = "SELECT * FROM STAFF WHERE email = ?";
+            sql = "SELECT * FROM staff WHERE email = ?";
         } else if (role === "admin") {
-            sql = "SELECT * FROM MANAGEMENT WHERE email = ?";
+            sql = "SELECT * FROM management WHERE email = ?";
         } else {
             return res.status(400).json({ message: "Invalid role" });
         }
 
         db.query(sql, [email], async (err, results) => {
-            if (err) return res.status(500).json({ message: "DB Error", error: err });
+            if (err) {
+                console.error("Login DB Error:", err);
+                return res.status(500).json({ message: "DB Error", error: err.message || err });
+            }
             if (results.length === 0) return res.status(404).json({ message: "User not found" });
 
             const user = results[0];
-            console.log(user);
+            console.log("Logged in user:", user.email, "role:", role);
 
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
@@ -98,10 +102,12 @@ exports.login = async (req, res) => {
                 { expiresIn: "1d" }
             );
 
+            // Cross-domain cookie support between Vercel and Render
+            const isProd = process.env.NODE_ENV === "production";
             res.cookie("token", token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
+                secure: isProd,
+                sameSite: isProd ? "none" : "lax",
                 maxAge: 24 * 60 * 60 * 1000 // 1 day
             });
 
@@ -112,15 +118,17 @@ exports.login = async (req, res) => {
             });
         });
     } catch (error) {
-        res.status(500).json({ message: "Server Error", error });
+        console.error("Login Server Error:", error);
+        res.status(500).json({ message: "Server Error", error: error.message || error });
     }
 };
 
 exports.logout = (req, res) => {
+    const isProd = process.env.NODE_ENV === "production";
     res.clearCookie("token", {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
     });
     res.status(200).json({ message: "Logged out successfully" });
 };
@@ -147,13 +155,13 @@ exports.changePassword = async (req, res) => {
         let tableName = "";
         let idColumn = "";
         if (role.toLowerCase() === "student") {
-            tableName = "STUDENT";
+            tableName = "student";
             idColumn = "student_id";
         } else if (role.toLowerCase() === "staff") {
-            tableName = "STAFF";
+            tableName = "staff";
             idColumn = "staff_id";
         } else if (role.toLowerCase() === "admin") {
-            tableName = "MANAGEMENT";
+            tableName = "management";
             idColumn = "management_id";
         } else {
             return res.status(400).json({ message: "Invalid role" });

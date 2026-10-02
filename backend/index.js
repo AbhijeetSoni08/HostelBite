@@ -35,7 +35,7 @@ app.use(
     origin: function (origin, callback) {
       // Allow requests with no origin (mobile apps, curl, etc.)
       if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
+      if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
         return callback(null, true);
       }
       return callback(new Error("Not allowed by CORS"));
@@ -46,6 +46,11 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
+
+// Health check endpoint
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date() });
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
@@ -62,13 +67,10 @@ app.use("/api/staff", staffRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/qr", qrRoutes);
 
-// Only listen when running locally (not on Vercel)
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT || 4000;
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-}
+// Listen on configured port for Render/local
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
-// Export for Vercel Serverless Functions
 module.exports = app;
