@@ -2,22 +2,23 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Coffee, Sun, Sunset, Moon, UtensilsCrossed, AlertCircle } from "lucide-react";
 
+const days = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
 const ViewMenu = () => {
   const [menuData, setMenuData] = useState([]);
   const [error, setError] = useState("");
   const [activeDay, setActiveDay] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  const days = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
-  
+
   const mealConfig = {
     breakfast: { icon: Coffee, color: "text-amber-500", bg: "bg-amber-50", border: "border-amber-200", time: "08:00 AM - 10:00 AM" },
     lunch: { icon: Sun, color: "text-brand-500", bg: "bg-brand-50", border: "border-brand-200", time: "12:30 PM - 02:00 PM" },
@@ -73,11 +74,10 @@ const ViewMenu = () => {
           <button
             key={day}
             onClick={() => setActiveDay(day)}
-            className={`snap-start whitespace-nowrap px-6 py-3 rounded-full font-medium transition-all ${
-              activeDay === day 
-                ? "bg-dark text-white shadow-md transform scale-105" 
-                : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-dark"
-            }`}
+            className={`snap-start whitespace-nowrap px-6 py-3 rounded-full font-medium transition-all ${activeDay === day
+              ? "bg-dark text-white shadow-md transform scale-105"
+              : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-dark"
+              }`}
           >
             {day}
           </button>
@@ -106,14 +106,14 @@ const ViewMenu = () => {
             const Icon = mealConfigItem.icon;
 
             return (
-              <div 
-                key={mealType} 
+              <div
+                key={mealType}
                 className={`card p-6 border-l-4 ${mealConfigItem.border} hover:shadow-card-hover transition-all duration-300 relative overflow-hidden`}
               >
                 <div className="absolute -right-4 -top-4 opacity-5">
                   <Icon size={120} />
                 </div>
-                
+
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <div className={`p-2 rounded-lg ${mealConfigItem.bg} ${mealConfigItem.color}`}>
@@ -125,12 +125,12 @@ const ViewMenu = () => {
                     {mealConfigItem.time}
                   </span>
                 </div>
-                
+
                 {mealData && mealData.items && mealData.items !== "-" ? (
                   <div className="mt-4 flex flex-wrap gap-2">
                     {mealData.items.split(',').map((item, index) => (
-                      <span 
-                        key={index} 
+                      <span
+                        key={index}
                         className="inline-flex items-center px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-100 text-gray-700 font-medium text-sm shadow-sm"
                       >
                         {item.trim()}

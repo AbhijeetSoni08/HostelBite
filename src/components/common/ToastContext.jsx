@@ -14,20 +14,24 @@ export const useToast = () => {
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
-  const addToast = useCallback((message, type = 'info', duration = 4000) => {
-    const id = Math.random().toString(36).substr(2, 9);
-    setToasts((prev) => [...prev, { id, message, type }]);
-
-    if (duration > 0) {
-      setTimeout(() => {
-        removeToast(id);
-      }, duration);
-    }
-  }, []);
-
   const removeToast = useCallback((id) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
+
+  const addToast = useCallback(
+    (message, type = 'info', duration = 4000) => {
+      const id = Math.random().toString(36).substr(2, 9);
+
+      setToasts((prev) => [...prev, { id, message, type }]);
+
+      if (duration > 0) {
+        setTimeout(() => {
+          removeToast(id);
+        }, duration);
+      }
+    },
+    [removeToast]
+  );
 
   const getIcon = (type) => {
     switch (type) {
@@ -58,17 +62,23 @@ export const ToastProvider = ({ children }) => {
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      {/* Toast Container */}
+
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none">
         {toasts.map((toast) => (
           <div
             key={toast.id}
             className={`pointer-events-auto flex items-start gap-3 p-4 rounded-lg shadow-level-4 border border-gray-100 min-w-[300px] max-w-md animate-slide-up ${getStyles(toast.type)}`}
           >
-            <div className="flex-shrink-0 mt-0.5">{getIcon(toast.type)}</div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-800">{toast.message}</p>
+            <div className="flex-shrink-0 mt-0.5">
+              {getIcon(toast.type)}
             </div>
+
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-800">
+                {toast.message}
+              </p>
+            </div>
+
             <button
               onClick={() => removeToast(toast.id)}
               className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { CheckCircle, Clock, Trash2, RotateCcw, Wallet } from "lucide-react";
 import { TableSkeleton } from "../../../common/Skeleton";
@@ -14,14 +14,16 @@ const ViewSalary = () => {
     const role = localStorage.getItem("role");
     const userId = localStorage.getItem("userId");
 
-    const fetchSalaries = async () => {
+    const fetchSalaries = useCallback(async () => {
         setLoading(true);
         setError(false);
+
         try {
-            const url = role === "admin" 
-                ? "/api/salary/"
-                : `/api/salary/staff/${userId}`;
-                
+            const url =
+                role === "admin"
+                    ? "/api/salary/"
+                    : `/api/salary/staff/${userId}`;
+
             const res = await axios.get(url, { withCredentials: true });
             setSalaries(res.data);
         } catch (err) {
@@ -31,19 +33,27 @@ const ViewSalary = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [role, userId, addToast]);
 
     useEffect(() => {
         fetchSalaries();
-    }, [addToast]);
+    }, [fetchSalaries]);
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this salary record?")) return;
+        if (!window.confirm("Are you sure you want to delete this salary record?")) {
+            return;
+        }
+
         try {
-            await axios.delete(`/api/salary/${id}`, { withCredentials: true });
-            setSalaries(salaries.filter((s) => s.id !== id));
+            await axios.delete(`/api/salary/${id}`, {
+                withCredentials: true,
+            });
+
+            setSalaries((prev) => prev.filter((s) => s.id !== id));
+
             addToast("success", "Salary record deleted.");
         } catch (err) {
+            console.error(err);
             addToast("error", "Error deleting salary record.");
         }
     };
@@ -65,7 +75,7 @@ const ViewSalary = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-dark flex items-center gap-2">
-                        <Wallet className="text-brand-500" size={28} /> 
+                        <Wallet className="text-brand-500" size={28} />
                         {role === "admin" ? "All Salary Slips" : "My Salary Slips"}
                     </h1>
                     <p className="text-gray-500 mt-1">Review payroll disbursements and history.</p>
@@ -75,13 +85,13 @@ const ViewSalary = () => {
             {loading ? (
                 <TableSkeleton rows={8} />
             ) : error ? (
-                <ErrorState 
-                    title="Failed to load salaries" 
-                    description="There was a problem communicating with our payroll servers." 
-                    onRetry={fetchSalaries} 
+                <ErrorState
+                    title="Failed to load salaries"
+                    description="There was a problem communicating with our payroll servers."
+                    onRetry={fetchSalaries}
                 />
             ) : salaries.length === 0 ? (
-                <EmptyState 
+                <EmptyState
                     icon={Wallet}
                     title="No salary records found"
                     description={role === "admin" ? "You haven't generated any salary slips yet." : "No salary records have been issued for you yet."}
@@ -136,14 +146,14 @@ const ViewSalary = () => {
                                         {role === "admin" && (
                                             <td className="text-right">
                                                 <div className="flex justify-end gap-1">
-                                                    <button 
+                                                    <button
                                                         onClick={() => handleUpdateStatus(s.id, s.status)}
                                                         className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors inline-flex"
                                                         title={`Mark as ${s.status.toLowerCase() === 'paid' ? 'Pending' : 'Paid'}`}
                                                     >
                                                         <RotateCcw size={16} />
                                                     </button>
-                                                    <button 
+                                                    <button
                                                         onClick={() => handleDelete(s.id)}
                                                         className="p-2 text-gray-400 hover:text-status-error hover:bg-status-errorBg rounded-lg transition-colors inline-flex"
                                                         title="Delete Salary Slip"
